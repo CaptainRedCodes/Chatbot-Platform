@@ -6,6 +6,7 @@ from pydantic_settings import BaseSettings
 from src.core.constants import Defaults, EnvVars
 from src.core.secrets import load_secrets_from_gsm, should_use_gsm
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -32,7 +33,8 @@ class Settings(BaseSettings):
     DEBUG: bool = Defaults.DEBUG
     TESTING: bool = Defaults.TESTING
     LOG_LEVEL: str = Defaults.LOG_LEVEL
-    USE_GSM: bool = Defaults.USE_GSM
+    LOG_LEVEL: str = Defaults.LOG_LEVEL
+
 
     model_config = {"env_file": ".env", "case_sensitive": True}
 
@@ -42,6 +44,7 @@ def get_settings() -> Settings:
     # Load secrets from GSM if enabled (automatically falls back to env variables)
     if should_use_gsm():
         load_secrets_from_gsm()
+
 
     return Settings()
 

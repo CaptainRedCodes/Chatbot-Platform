@@ -27,12 +27,6 @@ logger = logging.getLogger(__name__)
 def handle_auth_error(e: Exception) -> HTTPException:
     """
     Convert auth errors to appropriate HTTP exceptions
-
-    Args:
-        e: Exception from auth operation
-
-    Returns:
-        HTTPException with appropriate status code and message
     """
     if isinstance(e, ValueError):
         return HTTPException(
@@ -49,17 +43,9 @@ def handle_auth_error(e: Exception) -> HTTPException:
 def format_auth_response(result: dict[str, Any]) -> AuthResponse:
     """
     Format Supabase auth result into standardized response
-
-    Args:
-        result: Raw result from Supabase auth operation
-
-    Returns:
-        Formatted auth response with user and token data
     """
-    # Use pre-extracted full_name if available, otherwise extract safely
     full_name = result["user"].get("full_name", "")
     if not full_name:
-        # Fallback: safely handle user_metadata which might be string or dict for OAuth users
         user_metadata = result["user"]["user_metadata"]
         if isinstance(user_metadata, dict):
             full_name = user_metadata.get(Supabase.FULL_NAME_FIELD, "")
@@ -78,7 +64,7 @@ def format_auth_response(result: dict[str, Any]) -> AuthResponse:
         token_type="bearer",
     )
 
-    # Safely handle session data which might be dict or other type
+    # Safely handle session data
     session_data = result.get("session")
     if (
         session_data
@@ -94,9 +80,7 @@ def format_auth_response(result: dict[str, Any]) -> AuthResponse:
     return AuthResponse(user=user_response, token=token_response)
 
 
-@router.post(
-    "/signup", response_model=AuthResponse, status_code=status.HTTP_201_CREATED
-)
+@router.post("/signup", response_model=AuthResponse, status_code=status.HTTP_201_CREATED)
 async def signup(
     user_data: UserCreate,
     auth_service: AuthService = Depends(get_auth_service),

@@ -6,15 +6,6 @@ class EnvVars:
     SUPABASE_KEY = "SUPABASE_KEY"
     SUPABASE_JWT_SECRET = "SUPABASE_JWT_SECRET"
 
-    # Application configuration
-    DEBUG = "DEBUG"
-    TESTING = "TESTING"
-    LOG_LEVEL = "LOG_LEVEL"
-    USE_GSM = "USE_GSM"
-
-    # Google Cloud
-    GCP_PROJECT_ID = "GCP_PROJECT_ID"
-
 
 class Defaults:
     """Default configuration values"""

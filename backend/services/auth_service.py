@@ -1,10 +1,11 @@
 import logging
 from typing import Any
 
-from src.core.constants import OAuth, Supabase
-from src.core.messages import ErrorMessages, LogMessages
-from src.core.supabase_client import get_supabase_client
-from src.models.auth import UserCreate, UserLogin
+from backend.core.constants import OAuth, Supabase
+from backend.core.messages import ErrorMessages, LogMessages
+from backend.core.supabase_client import get_supabase_client
+from backend.models.auth import UserCreate, UserLogin
+
 
 logger = logging.getLogger(__name__)
 
@@ -14,6 +15,7 @@ class AuthService:
 
     def __init__(self) -> None:
         self.client = get_supabase_client()
+    
 
     async def signup(self, user_data: UserCreate) -> dict[str, Any]:
         """Register a new user in Supabase Auth"""

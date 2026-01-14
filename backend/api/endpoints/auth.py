@@ -4,10 +4,10 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials
 
-from src.api.dependencies import get_auth_service, get_current_user, security
-from src.core.constants import Supabase
-from src.core.messages import ErrorMessages, SuccessMessages
-from src.models.auth import (
+from backend.api.dependencies import get_auth_service, get_current_user, security
+from backend.core.constants import Supabase
+from backend.core.messages import ErrorMessages, SuccessMessages
+from backend.models.auth import (
     AuthResponse,
     OAuthCallbackRequest,
     OAuthLoginRequest,
@@ -18,7 +18,7 @@ from src.models.auth import (
     UserLogin,
     UserResponse,
 )
-from src.services.auth_service import AuthService
+from backend.services.auth_service import AuthService
 
 router = APIRouter()
 logger = logging.getLogger(__name__)

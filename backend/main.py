@@ -3,8 +3,8 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from src.api.router import api_router
-from src.core.config import settings
+from .api.router import api_router
+from .core.config import settings
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

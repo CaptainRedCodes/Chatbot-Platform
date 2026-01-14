@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import Enum
 from pydantic import BaseModel, EmailStr, Field
-from src.core.constants import OAuth, Validation
+from backend.core.constants import OAuth, Validation
 
 class UserBase(BaseModel):
     """Base user schema"""

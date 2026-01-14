@@ -1,6 +1,6 @@
 from supabase import Client, create_client
 
-from src.core.config import settings
+from backend.core.config import settings
 
 # Global client instance to preserve PKCE state
 _supabase_client: Client | None = None

@@ -9,12 +9,22 @@ class ErrorMessages:
     REGISTRATION_FAILED = "Registration failed"
     AUTHENTICATION_FAILED = "Authentication failed"
 
+    PROJECT_FAILED = "Error Creating the project"
+    PROJECT_UPDATE_FAILED = "Error Updatng the project"
+    PROJECT_DELETE_FAILED = "Error Deleteing the project "
+
+
+
 
 class SuccessMessages:
     """Success messages shown to users"""
 
     LOGOUT_SUCCESS = "Successfully logged out"
     PASSWORD_RESET_SENT = "Password reset email sent"
+
+    PROJECT_CREATED = "Successfully created the project"
+    PROJECT_UPDATED = "Sucessfully Updated the project"
+    PROJECT_DELETED = "Sucessfully Deleted the project"
 
 
 class LogMessages:
@@ -26,17 +36,8 @@ class LogMessages:
 
     # Settings loading
     LOADING_FROM_ENV = "Loading settings from environment variables (GSM disabled)"
-    LOADING_FROM_GSM = "Loading secrets from Google Secret Manager"
-    GSM_ERROR_FALLBACK = "Error loading secrets from GSM: {error}"
-    GSM_FALLBACK_WARNING = "Falling back to environment variables"
-
-    # Secret management
-    FETCHING_SECRET_GSM = "Fetching {secret_name} from GSM"
-    SECRET_RETRIEVED_GSM = "Successfully retrieved secret {secret_name} from GSM"
-    SECRET_LOADED_GSM = "Loaded {secret_name} from Google Secret Manager"
-    SECRET_EMPTY_WARNING = "Could not load {secret_name} from GSM, value was empty"
-    SECRET_ACCESS_ERROR = "Error accessing secret {secret_name}: {error}"
 
     # JWT validation
     JWT_MISSING_SUB = "Token is valid but missing 'sub' claim"
     JWT_VALIDATION_FAILED = "JWT validation failed: {error}"
+    JWT_KEY_NOT_FOUND = "JWT Key is not found"

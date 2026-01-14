@@ -7,7 +7,7 @@ from .api.router import api_router
 from .core.config import settings
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.getLogger("httpx").setLevel(logging.WARNING)
 
 app = FastAPI(
     title="ChatBot Platform",

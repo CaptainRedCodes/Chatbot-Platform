@@ -13,7 +13,4 @@ class Settings(BaseSettings):
     model_config = {"env_file": ".env", "case_sensitive": True}
 
 
-
-
-
 settings = Settings()

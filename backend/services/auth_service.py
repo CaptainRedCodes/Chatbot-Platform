@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 class AuthService:
     """Service for authentication operations"""
 
-    def __init__(self) -> None:
+    def __init__(self):
         self.client = get_supabase_client()
     
 

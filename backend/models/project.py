@@ -9,7 +9,7 @@ class ProjectCreate(BaseModel):
 class ProjectUpdate(BaseModel):
     project_name:str
     project_description:str
-    updated_at:datetime
+    updated_at:datetime | None = None
 
 class ProjectResponse(ProjectCreate):
     id:str

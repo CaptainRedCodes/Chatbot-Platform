@@ -5,6 +5,8 @@ class EnvVars:
     SUPABASE_URL = "SUPABASE_URL"
     SUPABASE_KEY = "SUPABASE_KEY"
     SUPABASE_JWT_SECRET = "SUPABASE_JWT_SECRET"
+    OPENROUTER_API_KEY = "OPENROUTER_API_KEYS"
+    OPENROUTER_URL = "OPENROUTER_URL"
 
 
 class Defaults:
@@ -23,11 +25,6 @@ class Defaults:
 
     # Logging
     LOG_LEVEL = "INFO"
-
-    # Boolean defaults
-    DEBUG = False
-    TESTING = False
-    USE_GSM = False
 
 
 class Validation:

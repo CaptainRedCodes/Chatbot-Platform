@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 class ProjectService:
     """Project or Agent Service"""
 
-    def __init__(self) -> None:
+    def __init__(self):
         self.client = get_supabase_client()
 
     async def create_project(self,proj_data:ProjectCreate,user_id:str):

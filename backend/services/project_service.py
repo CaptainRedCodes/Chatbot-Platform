@@ -3,7 +3,7 @@ import datetime
 import logging
 
 
-from typing import List
+from typing import List, Optional
 from uuid import uuid4
 from backend.core.supabase_client import get_supabase_client
 from backend.models.project import ProjectCreate,ProjectResponse, ProjectUpdate
@@ -25,6 +25,7 @@ class ProjectService:
                 "user_id":user_id,
                 "project_name":proj_data.project_name,
                 "project_description":proj_data.project_description,
+                "system_prompt": proj_data.system_prompt,
                 "created_at": created_at.isoformat()
             }
 
@@ -36,7 +37,8 @@ class ProjectService:
                 user_id=new_project["user_id"],
                 project_name=new_project["project_name"],
                 project_description=new_project["project_description"],
-                created_at=created_at
+                system_prompt=new_project["system_prompt"],
+                created_at=created_at,
             )
         
         except Exception as e:
@@ -94,3 +96,20 @@ class ProjectService:
         except Exception as e:
             logger.error(f"Failed to fetch projects: {e}")
             raise e
+
+    async def get_project(self, project_id: str, user_id: str) -> Optional[ProjectResponse]:
+        try:
+            result = self.client.table('Projects') \
+                .select("*") \
+                .eq('id', project_id) \
+                .eq('user_id', user_id) \
+                .single() \
+                .execute()
+            
+            if not result.data:
+                return None
+                
+            return ProjectResponse(**result.data)
+        except Exception as e:
+            logger.error(f"Failed to fetch project: {e}")
+            return None

@@ -9,6 +9,7 @@ from jose import JWTError, jwt
 from backend.core.config import settings
 from backend.core.messages import ErrorMessages, LogMessages
 from backend.services.auth_service import AuthService
+from backend.services.session_manager import SessionManager
 from backend.services.project_service import ProjectService
 
 logger = logging.getLogger(__name__)
@@ -103,3 +104,6 @@ def get_auth_service() -> AuthService:
 
 def get_project_service():
     return ProjectService()
+
+def get_session_manager():
+    return SessionManager()

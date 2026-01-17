@@ -44,9 +44,9 @@ A production-ready, full-stack AI chatbot platform with user authentication, pro
 ## 🏗️ Architecture
 
 ```
-![architecture image](architecture.png)
+architecture.png
 
-![db image](db.png)
+db.png
 ```
 
 ### Component Overview

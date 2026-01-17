@@ -1,17 +1,23 @@
 from datetime import datetime
-from pydantic import BaseModel, Field
-from uuid import UUID, uuid4
+from typing import Optional
+from pydantic import BaseModel
 
-class ProjectCreate(BaseModel):
-    project_name:str
-    project_description:str
+class ProjectBase(BaseModel):
+    project_name: str 
+    project_description: Optional[str] = None
+    system_prompt: Optional[str] = ""
+
+class ProjectCreate(ProjectBase):
+    pass
 
 class ProjectUpdate(BaseModel):
-    project_name:str
-    project_description:str
-    updated_at:datetime | None = None
+    project_name: Optional[str] = None
+    project_description: Optional[str] = None
+    system_prompt: Optional[str] = None
+    updated_at: Optional[datetime] = None
 
-class ProjectResponse(ProjectCreate):
-    id:str
-    user_id:str
-    created_at:datetime
+class ProjectResponse(ProjectBase):
+    id: str
+    user_id: str
+    created_at: datetime
+    updated_at: Optional[datetime] = None

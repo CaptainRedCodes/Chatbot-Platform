@@ -1,7 +1,6 @@
 import logging
 from typing import Any
 
-from backend.core.constants import OAuth, Supabase
 from backend.core.messages import ErrorMessages, LogMessages
 from backend.core.supabase_client import get_supabase_client
 from backend.models.auth import UserCreate, UserLogin
@@ -26,7 +25,7 @@ class AuthService:
                     "password": user_data.password,
                     "options": {
                         "data": {
-                            Supabase.FULL_NAME_FIELD: user_data.full_name,
+                            "full_name": user_data.full_name,
                         }
                     },
                 }
@@ -73,9 +72,9 @@ class AuthService:
             logger.error(f"Login error: {e!s}")
             raise ValueError(f"{ErrorMessages.AUTHENTICATION_FAILED}: {e!s}") from e
 
-    async def logout(self, token: str) -> bool:
+    async def logout(self, user_id: str) -> bool:
         try:
-            self.client.auth.sign_out()
+            self.client.auth.admin.sign_out(user_id)
             logger.info(LogMessages.USER_LOGGED_OUT)
             return True
         except Exception as e:
@@ -90,44 +89,6 @@ class AuthService:
             logger.error(f"Password reset error: {e!s}")
             return False
 
-    async def oauth_login(self, provider: str, redirect_url: str) -> dict[str, Any]:
-        """Initiate OAuth login flow - let Supabase handle PKCE"""
-        if provider != OAuth.GOOGLE:
-            raise ValueError(f"Unsupported provider: {provider}")
-
-        # Let Supabase handle PKCE internally - just pass the redirect URL
-        auth_response = self.client.auth.sign_in_with_oauth(
-            {"provider": "google", "options": {"redirect_to": redirect_url}}
-        )
-
-        return {"auth_url": auth_response.url}
-
-    async def handle_oauth_callback(
-        self, provider: str, code: str, redirect_url: str
-    ) -> dict[str, Any]:
-        """Handle OAuth callback - let Supabase handle PKCE code exchange"""
-        if provider != OAuth.GOOGLE:
-            raise ValueError(f"Unsupported provider: {provider}")
-
-        try:
-            # Pass proper CodeExchangeParams format - Supabase will get code_verifier from storage
-            code_exchange_params = {"auth_code": code, "redirect_to": redirect_url}
-
-            auth_response = self.client.auth.exchange_code_for_session(
-                code_exchange_params
-            )
-
-            if not auth_response.user or not auth_response.session:
-                raise ValueError("Failed to exchange code for session")
-
-            logger.info(
-                LogMessages.USER_LOGGED_IN.format(user_id=auth_response.user.id)
-            )
-            return self._build_auth_dict(auth_response)
-
-        except Exception as e:
-            logger.error(f"OAuth callback error: {e!s}")
-            raise ValueError(f"OAuth authentication failed: {e!s}") from e
 
     def _build_auth_dict(self, auth_response: Any) -> dict[str, Any]:
         """Build auth dict in format expected by format_auth_response helper"""
@@ -140,7 +101,7 @@ class AuthService:
 
         full_name = ""
         if isinstance(user_metadata, dict):
-            full_name = user_metadata.get(Supabase.FULL_NAME_FIELD, "")
+            full_name = user_metadata.get("full_name", "")
 
         user_dict = {
             "id": auth_response.user.id,

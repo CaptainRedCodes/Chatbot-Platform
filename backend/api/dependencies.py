@@ -9,8 +9,9 @@ from jose import JWTError, jwt
 from backend.core.config import settings
 from backend.core.messages import ErrorMessages, LogMessages
 from backend.services.auth_service import AuthService
+from backend.services.session_manager import SessionManager
 from backend.services.project_service import ProjectService
-
+from backend.core.messages import ErrorMessages
 logger = logging.getLogger(__name__)
 
 security = HTTPBearer()
@@ -34,7 +35,7 @@ def get_jwks():
             logger.error(f"Could not fetch JWKS: {e}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Authentication service unavailable"
+                detail=ErrorMessages.AUTHENTICATION_FAILED
             )
     return _jwks_cache
 
@@ -64,7 +65,7 @@ def validate_jwt_token(token: str) -> str:
         payload: dict[str, Any] = jwt.decode(
             token,
             key_data, 
-            algorithms=[alg],
+            algorithms=[alg], # type: ignore
             audience=AUDIENCE,
             options={
                 "verify_signature": True,
@@ -87,7 +88,7 @@ def validate_jwt_token(token: str) -> str:
         logger.warning(LogMessages.JWT_VALIDATION_FAILED.format(error=err))
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Invalid session: {str(err)}",
+            detail=ErrorMessages.SESSION_NOT_FOUND
         )
 
 
@@ -97,9 +98,17 @@ async def get_current_user(
     """Dependency to get the current user ID"""
     return validate_jwt_token(credentials.credentials)
 
+
+
+_session_manager = SessionManager()
+_project_service = ProjectService()
+_auth_service = AuthService()
+
 def get_auth_service() -> AuthService:
-    """Dependency to get the AuthService instance"""
-    return AuthService()
+    return _auth_service
 
 def get_project_service():
-    return ProjectService()
+    return _project_service
+
+def get_session_manager():
+    return _session_manager

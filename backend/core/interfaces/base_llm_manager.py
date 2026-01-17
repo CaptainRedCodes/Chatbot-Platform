@@ -23,6 +23,7 @@ class BaseLLMManager(ABC):
     
     @abstractmethod
     async def chat(self,message:str,system_prompt:str = "")->str:
+        """ Normal Chat"""
         pass
 
     @abstractmethod

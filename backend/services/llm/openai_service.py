@@ -38,7 +38,7 @@ class OpenAIProvider(BaseLLMManager):
     
 
     def get_provider_name(self) -> str:
-        return f"OpenAI ({self.chat_model})"
+        return f"({self.chat_model})"
     
 
     async def chat(self, message: Union[str, List[str], List[Dict]], system_prompt: str = "") -> str:

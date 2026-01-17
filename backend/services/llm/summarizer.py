@@ -46,4 +46,5 @@ class OpenRouterSummarizer(BaseSummarizer):
 
 
 def get_summarizer(model: str = "meta-llama/llama-3.3-70b-instruct:free") -> BaseSummarizer:
+    """Get Summary"""
     return OpenRouterSummarizer(model=model)

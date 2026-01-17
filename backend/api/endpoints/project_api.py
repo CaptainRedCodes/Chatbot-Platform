@@ -16,6 +16,7 @@ async def create_project(
     service: ProjectService = Depends(get_project_service)
 ) -> ProjectResponse:
     
+    """Create a project"""
     return await service.create_project(project_data, user_id)
 
 

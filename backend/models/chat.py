@@ -41,12 +41,11 @@ class SessionUpdate(BaseModel):
 
 class SessionResponse(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
-    
     id: str
     project_id: str
     user_id: str
     title: str
-    chat_model: Optional[str] = Field(default=None, alias="model")
+    chat_model: Optional[str] = None
     created_at: datetime
 
 class ChatRequest(BaseModel):

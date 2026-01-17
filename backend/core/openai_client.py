@@ -6,6 +6,7 @@ from backend.core.config import settings
 _openai_client: Optional[AsyncOpenAI] = None
 
 def get_openai_client() -> AsyncOpenAI:
+    """ Get OpenAI client"""
     global _openai_client
     
     if _openai_client is None:

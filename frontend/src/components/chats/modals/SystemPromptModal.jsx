@@ -13,8 +13,8 @@ export default function SystemPromptModal({
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
-            <div className="w-full max-w-md bg-card border border-border rounded-md p-5">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+            <div className="w-full max-w-md bg-white border border-gray-200 rounded-lg shadow-xl p-6">
                 <div className="flex items-center justify-between mb-4">
                     <h3 className="font-bold">System Prompt</h3>
                     <button onClick={onClose}>
@@ -32,7 +32,7 @@ export default function SystemPromptModal({
                         </div>
                     ) : (
                         <textarea
-                            className="w-full min-h-[120px] rounded-md border border-input bg-background px-3 py-2 text-sm"
+                            className="w-full min-h-[120px] rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50"
                             value={systemPrompt}
                             onChange={(e) => setSystemPrompt(e.target.value)}
                             placeholder="You are a helpful AI assistant..."

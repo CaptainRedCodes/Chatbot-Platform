@@ -171,8 +171,8 @@ export default function Dashboard() {
 
             {/* Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
-                    <div className="w-full max-w-md bg-card border border-border rounded-md p-6">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+                    <div className="w-full max-w-md bg-white border border-gray-200 rounded-lg shadow-xl p-6">
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="text-lg font-bold">
                                 {currentProject ? 'Edit Project' : 'Create Project'}
@@ -208,7 +208,7 @@ export default function Dashboard() {
                                 <Label htmlFor="system_prompt">System Prompt</Label>
                                 <textarea
                                     id="system_prompt"
-                                    className="mt-1 w-full min-h-[80px] rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                    className="mt-1 w-full min-h-[80px] rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     value={formData.system_prompt}
                                     onChange={(e) => setFormData({ ...formData, system_prompt: e.target.value })}
                                     placeholder="You are a helpful assistant."

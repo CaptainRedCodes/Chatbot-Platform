@@ -22,7 +22,7 @@ export default function ChatMessages({
     return (
     <>
         {messages
-            .filter(msg => msg.role !== 'system')gi
+            .filter(msg => msg.role !== 'system')
             .map((msg, idx) => (
                 <div
                     key={idx}

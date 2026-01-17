@@ -1,4 +1,4 @@
-# ChatBot Platform 🤖
+# ChatBot Platform 
 
 A production-ready, full-stack AI chatbot platform with user authentication, project management, and intelligent conversation memory. Built with FastAPI backend and React frontend.
 
@@ -10,18 +10,18 @@ A production-ready, full-stack AI chatbot platform with user authentication, pro
 
 ## ✨ Features
 
-### 🔐 Authentication System
+### Authentication System
 - **User Registration & Login** — Secure authentication powered by Supabase Auth
 - **JWT Token Validation** — ES256 algorithm with JWKS public key verification
 - **Protected Routes** — Frontend route guards for authenticated access
 
-### 📁 Project Management
+### Project Management
 - **Create Projects** — Define chatbot projects with custom names and descriptions
 - **System Prompts** — Set custom AI behavior per project
 - **CRUD Operations** — Full create, read, update, and delete functionality
 - **User Isolation** — Each user sees only their own projects
 
-### 💬 AI Chat System
+### AI Chat System
 - **Real-time Streaming** — Token-by-token response streaming via Server-Sent Events (SSE)
 - **Multiple Chat Sessions** — Create multiple conversations per project
 - **Model Selection** — Choose from multiple free LLM models:
@@ -31,7 +31,7 @@ A production-ready, full-stack AI chatbot platform with user authentication, pro
 - **Chat History** — Persistent message storage and retrieval
 - **Session Rename/Delete** — Manage chat sessions from the UI
 
-### 🧠 Intelligent Memory System
+### Intelligent Memory System
 - **Summarization Memory** — Automatic conversation summarization to maintain context
 - **Configurable Threshold** — Triggers summarization after N messages
 - **Background Processing** — Non-blocking summarization for low latency
@@ -43,8 +43,10 @@ A production-ready, full-stack AI chatbot platform with user authentication, pro
 
 ## 🏗️ Architecture
 
+### Database Architecture
 ![db.png](https://github.com/CaptainRedCodes/Chatbot-Platform/blob/main/db.png)
 
+### Project Architecture(High Level)
 ![architecture.png](https://github.com/CaptainRedCodes/Chatbot-Platform/blob/main/architecture.png)
 
 
@@ -145,7 +147,7 @@ Chatbot Platform/
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -263,7 +265,7 @@ Frontend runs at: `http://localhost:5173`
 
 ---
 
-## 📡 API Reference
+## API Reference
 
 ### Authentication
 
@@ -300,7 +302,7 @@ Frontend runs at: `http://localhost:5173`
 
 ---
 
-## 🧪 Health Check
+## Health Check
 
 ```bash
 curl http://127.0.0.1:8000/health
@@ -309,7 +311,7 @@ curl http://127.0.0.1:8000/health
 
 ---
 
-## 🔧 Configuration
+## Configuration
 
 ### Environment Variables
 
@@ -326,7 +328,6 @@ curl http://127.0.0.1:8000/health
 
 ---
 
-## 🚢 Deployment
 
 
 ### Frontend (Static Build)
@@ -346,7 +347,7 @@ npm run build
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Component | Technology |
 |-----------|------------|
@@ -361,14 +362,13 @@ npm run build
 
 ---
 
-## 📝 License
+## License
 
 This project is private and proprietary.
 
 ---
 
-## 🤝 Contributing
-
+## Contributing
 1. Fork the repository
 2. Create a feature branch
 3. Commit your changes

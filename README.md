@@ -44,9 +44,9 @@ A production-ready, full-stack AI chatbot platform with user authentication, pro
 ## 🏗️ Architecture
 
 ```
-architecture.png
+![db.png](https://github.com/CaptainRedCodes/Chatbot-Platform/blob/main/db.png)
 
-db.png
+![architecture.png](https://github.com/CaptainRedCodes/Chatbot-Platform/blob/main/architecture.png)
 ```
 
 ### Component Overview

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import client from '../api/client';
 
-const baseURL = import.meta.env.VITE_BASE_URL
+const baseURL = import.meta.env.VITE_BASE_URL;
 export function useChat(currentSession) {
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
@@ -51,7 +51,7 @@ export function useChat(currentSession) {
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`http://127.0.0.1:8000/api/v1/sessions/${sessionId}/chat/stream`, {
+            const response = await fetch(`${baseURL}/sessions/${sessionId}/chat/stream`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

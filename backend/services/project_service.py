@@ -8,6 +8,7 @@ from uuid import uuid4
 from backend.core.supabase_client import get_supabase_client
 from backend.models.project import ProjectCreate,ProjectResponse, ProjectUpdate
 from backend.core.messages import SuccessMessages,ErrorMessages
+
 logger = logging.getLogger(__name__)
 
 
@@ -45,6 +46,22 @@ class ProjectService:
             logger.error(f"Project Error:{e}")
             raise ValueError(f"{ErrorMessages.PROJECT_FAILED}:{e!s}")
 
+    async def get_project_by_id(self, project_id: str, user_id: str) -> Optional[ProjectResponse]:
+        try:
+            response = self.client.table("Projects")\
+                .select("id, project_name, system_prompt, user_id, created_at")\
+                .eq("id", project_id)\
+                .eq("user_id", user_id)\
+                .single()\
+                .execute()
+            
+            if response.data:
+                return ProjectResponse(**response.data)
+            return None
+        except Exception as e:
+            print(f"Error getting project: {e}")
+            return None
+    
     async def update_project(self,project_id:str,update_data:ProjectUpdate,user_id:str):
         try:
             update_payload = update_data.model_dump(exclude_unset=True)
@@ -87,9 +104,10 @@ class ProjectService:
     async def get_all_projects(self, user_id: str) -> List[ProjectResponse]:
         try:
             result = self.client.table('Projects') \
-                .select("*") \
+                .select("id,user_id,project_name,project_description,created_at") \
                 .eq('user_id', user_id) \
                 .order('created_at', desc=True) \
+                .range(0,9)\
                 .execute()
 
             return [ProjectResponse(**item) for item in result.data]
@@ -100,7 +118,7 @@ class ProjectService:
     async def get_project(self, project_id: str, user_id: str) -> Optional[ProjectResponse]:
         try:
             result = self.client.table('Projects') \
-                .select("*") \
+                .select("id,user_id,project_name,project_description,system_prompt,created_at") \
                 .eq('id', project_id) \
                 .eq('user_id', user_id) \
                 .single() \

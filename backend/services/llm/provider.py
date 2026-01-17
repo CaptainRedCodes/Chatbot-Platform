@@ -1,5 +1,6 @@
+from typing import List
 from backend.core.interfaces.base_llm_manager import BaseLLMManager
-from backend.services.llm.openai_service import OpenAIProvider
+from backend.core.config import settings
 
 
 def get_llm_provider(
@@ -8,21 +9,22 @@ def get_llm_provider(
     project_id: str, 
     user_id: str,
     summary_model: str,
-    enable_db: bool
+    enable_db: bool = True
 ) -> BaseLLMManager:
     """
     Factory: Decides which AI Provider class to use based on the model name.
+    All models are routed through OpenRouter (OpenAI-compatible API).
     """
     
-    if chat_model in ["gpt-4o", "gpt-4o-mini", "gpt-3.5-turbo"]:
+    if chat_model in settings.FREE_MODELS:
+        from backend.services.llm.openai_service import OpenAIProvider
         return OpenAIProvider(
             session_id=session_id,
             project_id=project_id,
             user_id=user_id,
-            chat_model=chat_model,
             summary_model=summary_model,
+            chat_model=chat_model,
             enable_db=enable_db
-        )
-    
-    # Default fallback
-    return OpenAIProvider(session_id, project_id, user_id, chat_model, summary_model, enable_db)
+        )  
+    else:
+        raise ValueError(f"Unknown model: {chat_model}. Available models: {settings.FREE_MODELS}")

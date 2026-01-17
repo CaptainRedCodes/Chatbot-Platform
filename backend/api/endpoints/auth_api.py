@@ -5,13 +5,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials
 
 from backend.api.dependencies import get_auth_service, get_current_user, security
-from backend.core.constants import Supabase
 from backend.core.messages import ErrorMessages, SuccessMessages
 from backend.models.auth import (
     AuthResponse,
-    OAuthCallbackRequest,
-    OAuthLoginRequest,
-    OAuthResponse,
     PasswordResetRequest,
     TokenResponse,
     UserCreate,
@@ -48,23 +44,21 @@ def format_auth_response(result: dict[str, Any]) -> AuthResponse:
     if not full_name:
         user_metadata = result["user"]["user_metadata"]
         if isinstance(user_metadata, dict):
-            full_name = user_metadata.get(Supabase.FULL_NAME_FIELD, "")
+            full_name = user_metadata.get("full_name")
 
     user_response = UserResponse(
         id=result["user"]["id"],
         email=result["user"]["email"],
-        full_name=full_name,
+        full_name=str(full_name),
         created_at=result["user"]["created_at"],
     )
 
-    # Handle optional session data
     token_response = TokenResponse(
         access_token="",
         refresh_token="",
         token_type="bearer",
     )
 
-    # Safely handle session data
     session_data = result.get("session")
     if (
         session_data
@@ -113,24 +107,17 @@ async def login(
 
 @router.post("/logout", status_code=status.HTTP_200_OK)
 async def logout(
-    token: HTTPAuthorizationCredentials = Depends(security),
+    user_id:str=Depends(get_current_user),
     auth_service: AuthService = Depends(get_auth_service),
 ) -> dict[str, str]:
     """Log out the current user"""
     try:
-        if not token.credentials:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail=ErrorMessages.INVALID_TOKEN,
-            )
-
-        success = await auth_service.logout(token.credentials)
+        success = await auth_service.logout(user_id)
         if not success:
             raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=ErrorMessages.LOGOUT_FAILED,
-            )
-
+                status_code=500,
+                detail=ErrorMessages.LOGOUT_FAILED)
+        
         return {"message": SuccessMessages.LOGOUT_SUCCESS}
     except Exception as e:
         raise handle_auth_error(e) from e
@@ -156,40 +143,3 @@ async def session_check(
     """Check if the current session is valid"""
     return {"valid": True, "user_id": current_user}
 
-
-@router.post("/oauth/login", response_model=OAuthResponse)
-async def oauth_login(
-    request: OAuthLoginRequest,
-    auth_service: AuthService = Depends(get_auth_service),
-) -> OAuthResponse:
-    """Initiate Google OAuth login flow"""
-    try:
-        result = await auth_service.oauth_login(request.provider, request.redirect_url)
-        return OAuthResponse(auth_url=result["auth_url"])
-    except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e),
-        ) from e
-    except Exception as e:
-        raise handle_auth_error(e) from e
-
-
-@router.post("/oauth/callback", response_model=AuthResponse)
-async def oauth_callback(
-    request: OAuthCallbackRequest,
-    auth_service: AuthService = Depends(get_auth_service),
-) -> AuthResponse:
-    """Handle Google OAuth callback and exchange code for tokens"""
-    try:
-        result = await auth_service.handle_oauth_callback(
-            request.provider, request.code, request.redirect_url
-        )
-        return format_auth_response(result)
-    except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e),
-        ) from e
-    except Exception as e:
-        raise handle_auth_error(e) from e

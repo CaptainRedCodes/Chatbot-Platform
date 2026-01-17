@@ -1,8 +1,8 @@
 from datetime import datetime
-from enum import Enum
 from pydantic import BaseModel, EmailStr, Field
-from backend.core.constants import OAuth, Validation
 
+
+MIN_PASSWORD_LENGTH = 8
 class UserBase(BaseModel):
     """Base user schema"""
 
@@ -12,7 +12,7 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     """User creation schema"""
 
-    password: str = Field(..., min_length=Validation.MIN_PASSWORD_LENGTH)
+    password: str = Field(..., min_length=MIN_PASSWORD_LENGTH)
     full_name: str = Field(..., min_length=1)
 
 
@@ -50,29 +50,3 @@ class PasswordResetRequest(BaseModel):
 
     email: EmailStr
 
-
-class OAuthProvider(str, Enum):
-    """OAuth provider options"""
-
-    GOOGLE = OAuth.GOOGLE
-
-
-class OAuthLoginRequest(BaseModel):
-    """OAuth login initiation request"""
-
-    provider: OAuthProvider
-    redirect_url: str
-
-
-class OAuthCallbackRequest(BaseModel):
-    """OAuth callback request"""
-
-    provider: OAuthProvider
-    code: str
-    redirect_url: str
-
-
-class OAuthResponse(BaseModel):
-    """OAuth login response"""
-
-    auth_url: str

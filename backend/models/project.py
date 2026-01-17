@@ -1,26 +1,23 @@
 from datetime import datetime
-from pydantic import BaseModel, Field
 from typing import Optional
+from pydantic import BaseModel
 
-class ProjectCreate(BaseModel):
-    project_name: str
-    project_description: str
-    # This is required for creating a project
-    system_prompt: str = Field(..., description="The 'personality' or instructions for the AI")
+class ProjectBase(BaseModel):
+    project_name: str 
+    project_description: Optional[str] = None
+    system_prompt: Optional[str] = ""
+
+class ProjectCreate(ProjectBase):
+    pass
 
 class ProjectUpdate(BaseModel):
-    project_name: str
-    project_description: str
-    system_prompt: str = Field(..., description="The 'personality' or instructions for the AI") 
-    updated_at: datetime | None = None
+    project_name: Optional[str] = None
+    project_description: Optional[str] = None
+    system_prompt: Optional[str] = None
+    updated_at: Optional[datetime] = None
 
-class ProjectResponse(ProjectCreate):
+class ProjectResponse(ProjectBase):
     id: str
     user_id: str
     created_at: datetime
-    
-    # --- FIX START ---
-    # We override the inherited field to make it optional for responses.
-    # This allows the API to return success even if the DB field is null/missing.
-    system_prompt: Optional[str] = None 
-    # --- FIX END ---
+    updated_at: Optional[datetime] = None

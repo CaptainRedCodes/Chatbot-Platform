@@ -1,60 +1,53 @@
-from typing import Dict, List, Optional
-from datetime import datetime
 import asyncio
+from typing import Dict, List
+from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
-
-from backend.core import supabase_client
-from backend.core.openai_client import get_openai_client
-from backend.models.chat import ChatMessage, ChatMessageStore, Role
+from backend.services.llm.summarizer import get_summarizer
+from backend.core.supabase_client import get_supabase_client
 from backend.core.interfaces.base_memory_manager import BaseMemoryStrategy
+from backend.core.messages import ErrorMessages
+
 
 
 class SummarizationMemory(BaseMemoryStrategy):
-    """
-    Memory strategy using conversation summarization to maintain context
-    while keeping token usage low for better latency.
-    """
     
     def __init__(
         self, 
         session_id: str,
-        summary_threshold: int = 6,
-        model_name: str = "gpt-3.5-turbo",
+        project_id: str,
+        user_id: str,
+        summary_threshold: int = 12,
+        model_name: str = "meta-llama/llama-3.3-70b-instruct:free",
         enable_db_persistence: bool = True
     ):
-        """
-        Args:
-            session_id: Unique identifier for this conversation session
-            summary_threshold: Number of messages before triggering summarization
-            model_name: Model to use for summarization (use faster model)
-            enable_db_persistence: Whether to save messages to database
-        """
+        
+        super().__init__()
         self.session_id = session_id
+        self.project_id = project_id
+        self.user_id = user_id
         self.summary_threshold = summary_threshold
         self.model_name = model_name
         self.enable_db_persistence = enable_db_persistence
         
-        # Initialize clients
-        self.ai_client = get_openai_client()
+        # Use lightweight summarizer to avoid circular dependency
+        self.summarizer = get_summarizer(model=self.model_name)
+        
         if self.enable_db_persistence:
-            self.db = supabase_client.get_supabase_client()
+            self.db = get_supabase_client()
         else:
             self.db = None
         
         self.running_summary = ""
         self.buffer: List[Dict[str, str]] = []
+        self._summarization_in_progress = False
         
-        # Thread pool for non-blocking DB writes
         self.executor = ThreadPoolExecutor(max_workers=2)
 
-        # Load existing memory if enabled
         if self.enable_db_persistence and self.db:
             self.load_memory()
 
-    def load_memory(self) -> None:
-        """Load summary and recent messages from DB."""
+    def load_memory(self):
         try:
-            # 1. Get latest summary
             summary_response = self.db.table("messages")\
                 .select("content")\
                 .eq("session_id", self.session_id)\
@@ -65,14 +58,8 @@ class SummarizationMemory(BaseMemoryStrategy):
                 .execute()
             
             if summary_response.data:
-                # Extract summary text (remove [SUMMARY] prefix)
                 self.running_summary = summary_response.data[0]['content'].replace("[SUMMARY] ", "")
 
-            # 2. Get recent non-summary messages
-            # In a real app we might want to ensure we don't load messages already summarized,
-            # but for simplicity we'll load the last N messages to fill the buffer.
-            # Ideally, we should add a 'summarized' flag to messages in DB.
-            # Here we just load the last few to provide immediate context.
             msgs_response = self.db.table("messages")\
                 .select("role, content")\
                 .eq("session_id", self.session_id)\
@@ -82,16 +69,13 @@ class SummarizationMemory(BaseMemoryStrategy):
                 .execute()
             
             if msgs_response.data:
-                # They come in desc order (newest first), so reverse for buffer
                 for msg in reversed(msgs_response.data):
                     self.buffer.append({"role": msg['role'], "content": msg['content']})
                     
         except Exception as e:
-            print(f"[Memory Load Error]: {e}")
+            print(f"{ErrorMessages.MEMORY_LOAD_FAILED}: {e}")
 
-    
     def _save_to_db_async(self, role: str, content: str) -> None:
-        """Non-blocking database save to maintain low latency."""
         if not self.enable_db_persistence or not self.db:
             return
         
@@ -103,45 +87,33 @@ class SummarizationMemory(BaseMemoryStrategy):
                     "content": content,
                     "timestamp": datetime.utcnow().isoformat()
                 }
-                self.db.table("messages").insert(data).execute()
+                self.db.table("messages").insert(data).execute() # type: ignore
             except Exception as e:
-                print(f"[DB Save Error]: {e}")
+                print(f"{ErrorMessages.MEMORY_SAVE_FAILED}: {e}")
         
         self.executor.submit(_save)
     
-    def add_message(self, user_input: str, ai_response: str) -> None:
-        """
-        Add new user-AI interaction to buffer.
-        Triggers summarization if threshold is reached.
-        Saves to DB asynchronously for low latency.
-        """
-        # Add to buffer
+    async def add_message(self, user_input: str, ai_response: str):
         self.buffer.append({"role": "user", "content": user_input})
         self.buffer.append({"role": "assistant", "content": ai_response})
         
-        # Save to database asynchronously (non-blocking)
         self._save_to_db_async("user", user_input)
         self._save_to_db_async("assistant", ai_response)
         
-        # Check if summarization is needed
-        if len(self.buffer) >= self.summary_threshold:
-            self._consolidate_memory()
+        # Fire-and-forget background summarization for lower latency
+        if len(self.buffer) >= self.summary_threshold and not self._summarization_in_progress:
+            asyncio.create_task(self._consolidate_memory_background())
     
-    def _consolidate_memory(self) -> None:
-        """
-        Summarize buffer contents and merge with existing summary.
-        Uses streaming-friendly approach for better perceived latency.
-        """
+
+    async def _consolidate_memory(self) -> None:
         if not self.buffer:
             return
         
-        # Format buffer for summarization
         buffer_text = "\n".join([
             f"{msg['role'].capitalize()}: {msg['content']}" 
             for msg in self.buffer
         ])
         
-        # Build summarization prompt
         if self.running_summary:
             system_prompt = (
                 "You are a conversation summarizer. Create a concise, factual summary "
@@ -161,35 +133,34 @@ class SummarizationMemory(BaseMemoryStrategy):
             user_prompt = f"Conversation:\n{buffer_text}\n\nProvide a summary:"
         
         try:
-            # Generate summary using LLM
-            response = self.ai_client.chat.completions.create(
-                model=self.model_name,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
-                ],
-                temperature=0.3,  
-                max_tokens=500  
+            response = await self.summarizer.summarize(
+                prompt=user_prompt,
+                system_prompt=system_prompt
             )
             
-            self.running_summary = response.choices[0].message.content.strip()
+            self.running_summary = response.strip()
             
-            # Save summary to DB if persistence enabled
             if self.enable_db_persistence:
                 self._save_to_db_async("system", f"[SUMMARY] {self.running_summary}")
             
-            print(f"[Summary Updated: {len(self.running_summary)} chars]")
-            
         except Exception as e:
+            print(f"{ErrorMessages.MEMORY_SUMMARIZE_FAILED}: {e}")
             return
         
         self.buffer = []
+
+    async def _consolidate_memory_background(self) -> None:
+        """Fire-and-forget background summarization for lower latency."""
+        if self._summarization_in_progress:
+            return
+        
+        self._summarization_in_progress = True
+        try:
+            await self._consolidate_memory()
+        finally:
+            self._summarization_in_progress = False
     
-    def get_context(self, query: str) -> str:
-        """
-        Build context for LLM from summary + recent buffer.
-        This provides both long-term and short-term memory.
-        """
+    def get_context(self) -> str:
         parts = []
         
         if self.running_summary:
@@ -208,17 +179,13 @@ class SummarizationMemory(BaseMemoryStrategy):
         return "\n\n".join(parts)
     
     def clear(self) -> None:
-        """Reset both summary and buffer."""
         self.running_summary = ""
         self.buffer = []
-        print(f"[Memory cleared for session: {self.session_id}]")
     
-    def force_summarize(self) -> None:
-        """Manually trigger summarization regardless of threshold."""
+    async def force_summarize(self) -> None:
         if self.buffer:
-            self._consolidate_memory()
+            await self._consolidate_memory()
     
     def __del__(self):
-        """Cleanup thread pool on deletion."""
         if hasattr(self, 'executor'):
             self.executor.shutdown(wait=False)

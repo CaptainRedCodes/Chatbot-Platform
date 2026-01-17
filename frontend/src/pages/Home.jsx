@@ -25,11 +25,6 @@ export default function Home() {
                         <Bot className="text-primary w-6 h-6" />
                         <span>ChatPlatform</span>
                     </div>
-                    <div className="hidden md:flex gap-8 text-sm font-medium text-muted-foreground">
-                        <a href="#" className="hover:text-primary transition-colors">Features</a>
-                        <a href="#" className="hover:text-primary transition-colors">Pricing</a>
-                        <a href="#" className="hover:text-primary transition-colors">Documentation</a>
-                    </div>
                     <div className="flex gap-4">
                         <Button onClick={handleLogout} variant="outline" size="sm" className="font-medium">Logout</Button>
                     </div>
@@ -52,46 +47,9 @@ export default function Home() {
                     <Button size="lg" className="gap-2 h-12 px-8 text-base bg-foreground text-background hover:bg-foreground/90">
                         Start Building <ArrowRight className="w-4 h-4" />
                     </Button>
-                    <Button size="lg" variant="outline" className="h-12 px-8 text-base">
-                        View Demo
-                    </Button>
                 </div>
             </section>
 
-            {/* Features Grid */}
-            <section className="py-24 border-t border-border">
-                <div className="container mx-auto px-4">
-                    <div className="grid md:grid-cols-3 gap-8">
-                        <Card className="bg-background border-border shadow-none">
-                            <CardHeader>
-                                <Zap className="w-10 h-10 text-foreground mb-4" />
-                                <CardTitle>Real-time Speed</CardTitle>
-                                <CardDescription>
-                                    Built on FastAPI and Vite for lightning-fast responses and development.
-                                </CardDescription>
-                            </CardHeader>
-                        </Card>
-                        <Card className="bg-background border-border shadow-none">
-                            <CardHeader>
-                                <Shield className="w-10 h-10 text-foreground mb-4" />
-                                <CardTitle>Secure Auth</CardTitle>
-                                <CardDescription>
-                                    Ready-to-use OAuth and session management out of the box.
-                                </CardDescription>
-                            </CardHeader>
-                        </Card>
-                        <Card className="bg-background border-border shadow-none">
-                            <CardHeader>
-                                <Bot className="w-10 h-10 text-foreground mb-4" />
-                                <CardTitle>AI Native</CardTitle>
-                                <CardDescription>
-                                    Designed specifically to handle complex LLM streaming and state.
-                                </CardDescription>
-                            </CardHeader>
-                        </Card>
-                    </div>
-                </div>
-            </section>
         </div>
     );
 }

@@ -7,14 +7,14 @@ class BaseMemoryStrategy(abc.ABC):
     """Abstract base class for all memory strategies."""
     
     @abc.abstractmethod
-    def add_message(self, user_input: str, ai_response: str) -> None:
+    async def add_message(self, user_input: str, ai_response: str):
         """
         Add a new user-AI interaction to the memory storage.
         """
         pass
     
     @abc.abstractmethod
-    def get_context(self, query: str) -> str:
+    def get_context(self) -> str:
         """
         Retrieve and format relevant context from memory for the LLM.
         """

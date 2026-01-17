@@ -9,7 +9,7 @@ __pycache__/
 
 # C extensions
 *.so
-
+error
 # Distribution / packaging
 .Python
 build/

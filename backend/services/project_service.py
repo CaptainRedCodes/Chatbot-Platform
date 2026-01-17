@@ -104,7 +104,7 @@ class ProjectService:
     async def get_all_projects(self, user_id: str) -> List[ProjectResponse]:
         try:
             result = self.client.table('Projects') \
-                .select("id,user_id,project_name,project_description,created_at") \
+                .select("id,user_id,project_name,project_description,system_prompt,created_at") \
                 .eq('user_id', user_id) \
                 .order('created_at', desc=True) \
                 .range(0,9)\

@@ -11,7 +11,6 @@ from backend.core.messages import ErrorMessages, LogMessages
 from backend.services.auth_service import AuthService
 from backend.services.session_manager import SessionManager
 from backend.services.project_service import ProjectService
-from backend.core.messages import ErrorMessages
 logger = logging.getLogger(__name__)
 
 security = HTTPBearer()

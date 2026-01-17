@@ -18,8 +18,10 @@ app = FastAPI(
 origins = [
     "http://localhost:5173", 
     "http://127.0.0.1:5173",
-    "https://chatbot-backend-f7wq.onrender.com/",
-    "https://chatbot-backend-f7wq.onrender.com"
+    "https://chatbot-backend-iv4s.onrender.com/",
+    "https://chatbot-backend-iv4s.onrender.com",
+    "https://chatbot-gmlh.onrender.com/",
+    "https://chatbot-gmlh.onrender.com"
 ]
 
 # CORS middleware

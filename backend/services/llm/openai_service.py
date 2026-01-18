@@ -102,8 +102,8 @@ class OpenAIProvider(BaseLLMManager):
         messages = []
         
         if system_prompt:
-            messages.append({"role": "system", "content": system_prompt})
-        
+            messages.append({"role": "system", "content": system_prompt+ " Keep the output strictly factual and direct. Do not use conversational fillers, greetings, or sign-offs. Provide only the requested information."})
+
         if context and context != "No conversation history available.":
             messages.append({
                 "role": "system", 

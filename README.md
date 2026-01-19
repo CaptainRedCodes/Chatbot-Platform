@@ -364,11 +364,11 @@ npm run build
 
 ## Future Feature Plans
 
-1.Add Rate Limiting 
-2.Add Paid Models with Rate Limiting
-3.Use redis to store sessions so that only one device can be online per user at a time
-4.Use redis to cache all the projects,its chats and memory
-5.Add more Models and help switching context between them.
+1. Add Rate Limiting 
+2. Add Paid Models with Rate Limiting
+3. Use redis to store sessions so that only one device can be online per user at a time
+4. Use redis to cache all the projects,its chats and memory
+5. Add more Models and help switching context between them.
 
 ## License
 

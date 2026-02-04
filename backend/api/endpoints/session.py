@@ -26,7 +26,6 @@ async def create_session(
         raise HTTPException(status_code=404, detail=ErrorMessages.PROJECT_NOT_FOUND)
 
     session_id, _ = cbot.create_session(
-        user_id=user_id,
         project_id=session_data.project_id,
         enable_db=True,
         chat_model = session_data.chat_model
@@ -35,7 +34,6 @@ async def create_session(
     return SessionResponse(
         id=session_id,
         project_id=session_data.project_id,
-        user_id=user_id,
         title=session_data.title or "New Chat",
         chat_model = session_data.chat_model,
         created_at=datetime.datetime.now(datetime.timezone.utc)
@@ -48,7 +46,7 @@ async def list_sessions(
     cbot: SessionManager = Depends(get_session_manager)
 ):
     """List all sessions for the user, optionally filtered by project."""
-    return cbot.get_user_sessions(user_id, project_id)
+    return cbot.get_user_sessions(project_id)
 
 
 @router.post("/{session_id}/chat", response_model=ChatResponse)

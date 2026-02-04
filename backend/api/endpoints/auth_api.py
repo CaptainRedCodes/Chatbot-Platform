@@ -1,8 +1,7 @@
 import logging
-from typing import Any
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import HTTPAuthorizationCredentials
 
 from backend.api.dependencies import get_auth_service, get_current_user, security
 from backend.core.messages import ErrorMessages, SuccessMessages
@@ -73,11 +72,12 @@ def format_auth_response(result: dict[str, Any]) -> AuthResponse:
 
     return AuthResponse(user=user_response, token=token_response)
 
+AuthUser = Annotated[AuthService,Depends(get_auth_service)]
 
 @router.post("/signup", response_model=AuthResponse, status_code=status.HTTP_201_CREATED)
 async def signup(
     user_data: UserCreate,
-    auth_service: AuthService = Depends(get_auth_service),
+    auth_service: AuthUser,
 ) -> AuthResponse:
     """Register a new user account"""
     try:
@@ -90,7 +90,7 @@ async def signup(
 @router.post("/login", response_model=AuthResponse)
 async def login(
     user_data: UserLogin,
-    auth_service: AuthService = Depends(get_auth_service),
+    auth_service: AuthUser,
 ) -> AuthResponse:
     """Log in with email and password"""
     try:
@@ -126,7 +126,7 @@ async def logout(
 @router.post("/reset-password", status_code=status.HTTP_200_OK)
 async def reset_password(
     request: PasswordResetRequest,
-    auth_service: AuthService = Depends(get_auth_service),
+    auth_service: AuthUser
 ) -> dict[str, str]:
     """Request a password reset"""
     try:
@@ -138,8 +138,8 @@ async def reset_password(
 
 @router.get("/session-check", status_code=status.HTTP_200_OK)
 async def session_check(
-    current_user: str = Depends(get_current_user),
+    user_id: str = Depends(get_current_user)
 ) -> dict[str, Any]:
     """Check if the current session is valid"""
-    return {"valid": True, "user_id": current_user}
+    return {"valid": True, "user_id": user_id}
 

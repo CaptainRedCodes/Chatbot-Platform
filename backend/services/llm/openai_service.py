@@ -2,13 +2,14 @@ from backend.services.memory.summarization_memory import SummarizationMemory
 from backend.core.openai_client import get_openai_client
 from backend.core.interfaces.base_llm_manager import BaseLLMManager
 from backend.core.messages import ErrorMessages
+from backend.core.config import DEFAULT_MODEL
 from uuid import uuid4
 from typing import Union, List, Dict, AsyncGenerator
 
 class OpenAIProvider(BaseLLMManager):
     """
     Chatbot with summarization-based memory management.
-    Optimized for low latency with async DB operations.
+    Uses OpenRouter API for model access.
     """
     
     def __init__(
@@ -16,8 +17,8 @@ class OpenAIProvider(BaseLLMManager):
         session_id: str = "",
         project_id: str = "",
         user_id: str = "",
-        chat_model: str = "meta-llama/llama-3.3-70b-instruct:free", 
-        summary_model:str="meta-llama/llama-3.3-70b-instruct:free",
+        chat_model: str = DEFAULT_MODEL, 
+        summary_model: str = DEFAULT_MODEL,
         enable_db: bool = True
         ):
 

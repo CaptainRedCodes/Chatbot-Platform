@@ -11,8 +11,8 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 
 app = FastAPI(
     title="ChatBot Platform",
-    description="Production-ready authentication based chatbot",
-    version="0.1.0",
+    description="Ai chatbot",
+    version="2.1.0",
 )
 
 origins = [
@@ -39,4 +39,4 @@ app.include_router(api_router, prefix="/api/v1")
 @app.get("/health")
 async def health_check() -> dict[str, str]:
     """Simple health check endpoint"""
-    return {"status": "healthy", "version": "1.1.1"}
+    return {"status": "healthy", "version": "2.1.0"}

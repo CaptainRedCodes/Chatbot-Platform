@@ -28,7 +28,7 @@ async def get_project(
 ) -> ProjectResponse:
     """Fetch a single project by ID."""
     
-    project = await service.get_project_by_id(project_id, user_id)
+    project = await service.get_project(project_id, user_id)
     
     if not project:
         raise HTTPException(status_code=404, detail=ErrorMessages.PROJECT_NOT_FOUND)
@@ -73,4 +73,4 @@ async def get_available_models():
     Returns the list of supported AI models.
     Frontend uses this to populate the dropdown menu.
     """
-    return {"models": settings.FREE_MODELS}
+    return {"models": list(settings.PROVIDERS.keys())}

@@ -1,23 +1,14 @@
-
-from abc import ABC, abstractmethod
+from backend.core.interfaces.base_summarizer_memory import BaseSummarizer
 from backend.core.openai_client import get_openai_client
 from backend.core.messages import ErrorMessages
-
-
-class BaseSummarizer(ABC):
-
-    @abstractmethod
-    async def summarize(self, prompt: str, system_prompt: str = "") -> str:
-        """
-        Generate a summary given a prompt and optional system prompt.
-        """
-        pass
+from backend.core.config import DEFAULT_MODEL
 
 
 class OpenRouterSummarizer(BaseSummarizer):
+    """Summarizer using OpenRouter API."""
 
-    def __init__(self, model: str = "meta-llama/llama-3.3-70b-instruct:free"):
-        self.model = model
+    def __init__(self, model: str = DEFAULT_MODEL):
+        self.model = model if model else DEFAULT_MODEL  # Ensure we never have empty model
         self.client = get_openai_client()
     
     async def summarize(self, prompt: str, system_prompt: str = "") -> str:
@@ -45,6 +36,6 @@ class OpenRouterSummarizer(BaseSummarizer):
             return ""
 
 
-def get_summarizer(model: str = "meta-llama/llama-3.3-70b-instruct:free") -> BaseSummarizer:
-    """Get Summary"""
+def get_summarizer(model: str = DEFAULT_MODEL) -> BaseSummarizer:
+    """Get summarizer instance."""
     return OpenRouterSummarizer(model=model)

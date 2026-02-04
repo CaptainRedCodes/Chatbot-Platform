@@ -1,6 +1,6 @@
-from typing import List
 from backend.core.interfaces.base_llm_manager import BaseLLMManager
-from backend.core.config import settings
+from backend.core.config import settings, DEFAULT_MODEL
+from backend.services.llm.openai_service import OpenAIProvider
 
 
 def get_llm_provider(
@@ -13,12 +13,20 @@ def get_llm_provider(
 ) -> BaseLLMManager:
     """
     Factory: Decides which AI Provider class to use based on the model name.
-    All models are routed through OpenRouter (OpenAI-compatible API).
     """
     
-    if chat_model in settings.FREE_MODELS:
-        from backend.services.llm.openai_service import OpenAIProvider
-        return OpenAIProvider(
+    # Ensure we never send an empty model to the provider
+    if not chat_model or chat_model.strip() == "":
+        chat_model = DEFAULT_MODEL
+    
+    if not summary_model or summary_model.strip() == "":
+        summary_model = DEFAULT_MODEL
+    
+    provider = OpenAIProvider
+    if not provider:
+         raise ValueError(f"Unknown model: {chat_model}. Available models: {settings.FREE_MODELS}")
+    
+    return provider(
             session_id=session_id,
             project_id=project_id,
             user_id=user_id,
@@ -26,5 +34,3 @@ def get_llm_provider(
             chat_model=chat_model,
             enable_db=enable_db
         )  
-    else:
-        raise ValueError(f"Unknown model: {chat_model}. Available models: {settings.FREE_MODELS}")

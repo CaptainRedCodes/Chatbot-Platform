@@ -1,11 +1,12 @@
 import asyncio
 from typing import Dict, List
-from datetime import datetime
+from datetime import datetime, timezone
 from concurrent.futures import ThreadPoolExecutor
 from backend.services.llm.summarizer import get_summarizer
 from backend.core.supabase_client import get_supabase_client
 from backend.core.interfaces.base_memory_manager import BaseMemoryStrategy
 from backend.core.messages import ErrorMessages
+from backend.core.config import DEFAULT_MODEL
 
 
 
@@ -17,7 +18,7 @@ class SummarizationMemory(BaseMemoryStrategy):
         project_id: str,
         user_id: str,
         summary_threshold: int = 12,
-        model_name: str = "meta-llama/llama-3.3-70b-instruct:free",
+        model_name: str = DEFAULT_MODEL,
         enable_db_persistence: bool = True
     ):
         
@@ -85,7 +86,7 @@ class SummarizationMemory(BaseMemoryStrategy):
                     "session_id": self.session_id,
                     "role": role,
                     "content": content,
-                    "timestamp": datetime.utcnow().isoformat()
+                    "timestamp": datetime.now(timezone.utc).isoformat()
                 }
                 self.db.table("messages").insert(data).execute() # type: ignore
             except Exception as e:

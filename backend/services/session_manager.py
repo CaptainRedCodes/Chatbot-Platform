@@ -7,6 +7,7 @@ import logging
 from backend.core import supabase_client
 from backend.core.interfaces.base_llm_manager import BaseLLMManager
 from backend.core.messages import ErrorMessages
+from backend.core.config import DEFAULT_MODEL
 from backend.services.llm.provider import get_llm_provider
 
 logger = logging.getLogger(__name__)
@@ -23,11 +24,10 @@ class SessionManager:
     
     def create_session(
         self, 
-        user_id: str,
         project_id: str,
         session_id: Optional[str] = None,
-        chat_model: str = "meta-llama/llama-3.3-70b-instruct:free",
-        summary_model: str = "meta-llama/llama-3.3-70b-instruct:free",
+        chat_model: str = DEFAULT_MODEL,
+        summary_model: str = DEFAULT_MODEL,
         enable_db: bool = True
     ) -> Tuple[str, BaseLLMManager]:
         """
@@ -35,6 +35,13 @@ class SessionManager:
         """
         if session_id is None:
             session_id = str(uuid4())
+
+        proj_res = self.db.table("Projects")\
+                        .select("user_id")\
+                        .eq("id",project_id)\
+                        .single()\
+                        .execute()
+        user_id = proj_res.data.get("user_id")
         
         # Check RAM cache first
         if session_id in self.sessions:
@@ -53,7 +60,6 @@ class SessionManager:
             try:
                 data = {
                     "id": session_id,
-                    "user_id": user_id,
                     "project_id": project_id,
                     "created_at": datetime.now(timezone.utc).isoformat(),
                     "title": "New Chat",
@@ -78,18 +84,22 @@ class SessionManager:
             return None
 
         try:
+            # Join with Projects to get user_id since it's not stored in sessions anymore
             res = self.db.table("sessions")\
-                .select("project_id, user_id, model")\
+                .select("project_id, model, Projects(user_id)")\
                 .eq("id", session_id)\
                 .single()\
                 .execute()
             
+            
             if res.data:
-                project_id = res.data.get("project_id", "")
-                user_id = res.data.get("user_id", "")
+                project_id = res.data.get("project_id")
                 chat_model = res.data.get("model", "meta-llama/llama-3.3-70b-instruct:free")
                 
-                # Reconstruct the bot
+                # Get user_id from the joined Projects table
+                projects_data = res.data.get("Projects")
+                user_id = projects_data.get("user_id") if projects_data else ""
+
                 chatbot = get_llm_provider(
                     session_id=session_id,
                     project_id=project_id,
@@ -108,18 +118,16 @@ class SessionManager:
                 
         return None
     
-    def get_user_sessions(self, user_id: str, project_id: Optional[str] = None) -> List[Dict]:
+    def get_user_sessions(self,project_id: Optional[str] = None) -> List[Dict]:
         """List sessions for a user, optimized for UI rendering."""
         if not self.db:
             return []
         
         try:
             query = self.db.table("sessions")\
-                .select("id, title, created_at, model, project_id, user_id")\
-                .eq("user_id", user_id)
-            
-            if project_id:
-                query = query.eq("project_id", project_id)
+                .select("id, title, created_at, model, project_id")\
+                .eq("project_id", project_id)
+
                 
             res = query.order("created_at", desc=True).execute()
             return res.data if res.data else []
@@ -132,9 +140,11 @@ class SessionManager:
         """Get chat history optimized for frontend display."""
         if self.db:
             try:
+                # Filter out system messages (including summaries) - only show user and assistant
                 res = self.db.table("messages")\
                     .select("role, content, timestamp")\
                     .eq("session_id", session_id)\
+                    .in_("role", ["user", "assistant"])\
                     .order("timestamp", desc=False)\
                     .execute()
                 return res.data or []

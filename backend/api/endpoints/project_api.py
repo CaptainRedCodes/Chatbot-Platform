@@ -73,4 +73,4 @@ async def get_available_models():
     Returns the list of supported AI models.
     Frontend uses this to populate the dropdown menu.
     """
-    return {"models": list(settings.PROVIDERS.keys())}
+    return {"models": list(settings.FREE_MODELS)}

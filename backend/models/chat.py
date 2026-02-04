@@ -47,7 +47,7 @@ class SessionResponse(BaseModel):
     id: str
     project_id: str
     title: str
-    chat_model: Optional[str] = Field(default=None, alias="model")  # Map 'model' from DB to 'chat_model'
+    chat_model: Optional[str] = Field(default=None, alias="model")
     created_at: datetime
 
 class ChatRequest(BaseModel):

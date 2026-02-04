@@ -3,7 +3,7 @@ from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from backend.api.dependencies import get_auth_service, get_current_user, security
+from backend.api.dependencies import get_auth_service, get_current_user
 from backend.core.messages import ErrorMessages, SuccessMessages
 from backend.models.auth import (
     AuthResponse,
@@ -16,7 +16,6 @@ from backend.models.auth import (
 from backend.services.auth_service import AuthService
 
 router = APIRouter()
-logger = logging.getLogger(__name__)
 
 
 def handle_auth_error(e: Exception) -> HTTPException:

@@ -6,8 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from .api.router import api_router
 from .core.config import settings
 
-# Configure logging
-logging.getLogger("httpx").setLevel(logging.WARNING)
+# Simple error-only logging
+logging.basicConfig(level=logging.ERROR)
 
 app = FastAPI(
     title="ChatBot Platform",
@@ -34,7 +34,6 @@ app.add_middleware(
 )
 
 app.include_router(api_router, prefix="/api/v1")
-
 
 @app.get("/health")
 async def health_check() -> dict[str, str]:

@@ -35,7 +35,7 @@ async def create_session(
         id=session_id,
         project_id=session_data.project_id,
         title=session_data.title or "New Chat",
-        chat_model = session_data.chat_model,
+        model=session_data.chat_model,  # Use 'model' as that's what the alias expects
         created_at=datetime.datetime.now(datetime.timezone.utc)
     )
 
